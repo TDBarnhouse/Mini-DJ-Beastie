@@ -43,7 +43,6 @@
 		"missingPermissionSpeak": "Cannot speak in this voice channel due to missing permissions.",
 		"queueAdded": " <@{author}> added **{title}** to the queue.",
 		"cantJoinChannel": "Could not join the channel: {error}.",
-		"queueEnded": "The queue has no music left.",
 		"queueError": "Error: {error}.",
 		"skipSong": "<@{author}> skipped the song.",
 		"pauseSong": "<@{author}> paused the music.",

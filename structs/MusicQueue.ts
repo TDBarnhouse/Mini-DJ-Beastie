@@ -11,7 +11,7 @@ import {
   VoiceConnectionState,
   VoiceConnectionStatus
 } from "@discordjs/voice";
-import { CommandInteraction, Message, TextChannel, User } from "discord.js";
+import { CommandInteraction, EmbedBuilder, Message, TextChannel, User } from "discord.js";
 import { promisify } from "node:util";
 import { bot } from "../index";
 import { QueueOptions } from "../interfaces/QueueOptions";
@@ -21,6 +21,8 @@ import { canModifyQueue } from "../utils/queue";
 import { Song } from "./Song";
 
 const wait = promisify(setTimeout);
+
+const { greenCheck, redX } = require('../variables/logos.js');
 
 export class MusicQueue {
   public readonly interaction: CommandInteraction;
@@ -131,8 +133,6 @@ export class MusicQueue {
     this.songs = [];
     this.player.stop();
 
-    !config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded")).catch(console.error);
-
     if (this.waitTimeout !== null) return;
 
     this.waitTimeout = setTimeout(() => {
@@ -143,7 +143,13 @@ export class MusicQueue {
       }
       bot.queues.delete(this.interaction.guild!.id);
 
-      !config.PRUNING && this.textChannel.send(i18n.__("play.leaveChannel"));
+      if (!config.PRUNING) {
+        const leaveEmbed = new EmbedBuilder()
+          .setDescription(i18n.__("play.leaveChannel"))
+          .setColor("#FF0000");
+        
+        this.textChannel.send({ embeds: [leaveEmbed] });
+      }
     }, config.STAY_TIME * 1000);
   }
 
@@ -229,37 +235,82 @@ export class MusicQueue {
 
         case "🔇":
           reaction.users.remove(user).catch(console.error);
-          if (!canModifyQueue(member)) return i18n.__("common.errorNotChannel");
+
+          if (!canModifyQueue(member)) {
+            const errorEmbed = new EmbedBuilder()
+              .setDescription(`${redX}` + i18n.__("common.errorNotChannel"))
+              .setColor("#FF0000");
+
+            return this.interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
+          }           
+          
           this.muted = !this.muted;
+
           if (this.muted) {
             this.resource.volume?.setVolumeLogarithmic(0);
-            this.textChannel.send(i18n.__mf("play.mutedSong", { author: user })).catch(console.error);
+            this.textChannel.send({
+              embeds: [
+                new EmbedBuilder()
+                  .setDescription(`${greenCheck}` + i18n.__mf("play.mutedSong", { author: user }))
+                  .setColor("#FF0000")
+              ],
+            }).catch(console.error);
           } else {
             this.resource.volume?.setVolumeLogarithmic(this.volume / 100);
-            this.textChannel.send(i18n.__mf("play.unmutedSong", { author: user })).catch(console.error);
+            this.textChannel.send({
+              embeds: [
+                new EmbedBuilder()
+                  .setDescription(`${greenCheck}` + i18n.__mf("play.unmutedSong", { author: user }))
+                  .setColor("#FF0000")
+              ],
+            }).catch(console.error);
           }
           break;
 
         case "🔉":
           reaction.users.remove(user).catch(console.error);
           if (this.volume == 0) return;
-          if (!canModifyQueue(member)) return i18n.__("common.errorNotChannel");
+
+          if (!canModifyQueue(member)) {
+            const errorEmbed = new EmbedBuilder()
+              .setDescription(`${redX}` + i18n.__("common.errorNotChannel"))
+              .setColor("#FF0000");
+          
+            return this.interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
+          }          
+          
           this.volume = Math.max(this.volume - 10, 0);
           this.resource.volume?.setVolumeLogarithmic(this.volume / 100);
-          this.textChannel
-            .send(i18n.__mf("play.decreasedVolume", { author: user, volume: this.volume }))
-            .catch(console.error);
+          this.textChannel.send({
+            embeds: [
+              new EmbedBuilder()
+                .setDescription(`${greenCheck}` + i18n.__mf("play.decreasedVolume", { author: user, volume: this.volume }))
+                .setColor("#FF0000")
+            ],
+          }).catch(console.error);
           break;
 
         case "🔊":
           reaction.users.remove(user).catch(console.error);
           if (this.volume == 100) return;
-          if (!canModifyQueue(member)) return i18n.__("common.errorNotChannel");
+
+          if (!canModifyQueue(member)) {
+            const errorEmbed = new EmbedBuilder()
+              .setDescription(`${redX}` + i18n.__("common.errorNotChannel"))
+              .setColor("#FF0000");
+          
+            return this.interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
+          } 
+
           this.volume = Math.min(this.volume + 10, 100);
           this.resource.volume?.setVolumeLogarithmic(this.volume / 100);
-          this.textChannel
-            .send(i18n.__mf("play.increasedVolume", { author: user, volume: this.volume }))
-            .catch(console.error);
+          this.textChannel.send({
+            embeds: [
+              new EmbedBuilder()
+                .setDescription(`${greenCheck}` + i18n.__mf("play.increasedVolume", { author: user, volume: this.volume }))
+                .setColor("#FF0000")
+            ],
+          }).catch(console.error);
           break;
 
         case "🔁":

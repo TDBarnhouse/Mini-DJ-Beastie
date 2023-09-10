@@ -7,7 +7,8 @@ import {
   Interaction,
   REST,
   Routes,
-  Snowflake
+  Snowflake,
+  EmbedBuilder
 } from "discord.js";
 import { readdirSync } from "fs";
 import { join } from "path";
@@ -17,6 +18,8 @@ import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
 import { MissingPermissionsException } from "../utils/MissingPermissionsException";
 import { MusicQueue } from "./MusicQueue";
+
+const { greenCheck, redX } = require('../variables/logos.js');
 
 export class Bot {
   public readonly prefix = config.PREFIX;
@@ -77,13 +80,17 @@ export class Bot {
 
         if (now < expirationTime) {
           const timeLeft = (expirationTime - now) / 1000;
-          return interaction.reply({
-            content: i18n.__mf("common.cooldownMessage", {
-              time: timeLeft.toFixed(1),
-              name: interaction.commandName
-            }),
-            ephemeral: true
-          });
+      
+          const cooldownEmbed = new EmbedBuilder()
+            .setDescription(
+              `${redX}` + i18n.__mf("common.cooldownMessage", {
+                time: timeLeft.toFixed(1),
+                name: interaction.commandName
+              })
+            )
+            .setColor("#FF0000");
+      
+          return interaction.reply({ embeds: [cooldownEmbed], ephemeral: true }).catch(console.error);
         }
       }
 
@@ -102,10 +109,17 @@ export class Bot {
         console.error(error);
 
         if (error.message.includes("permissions")) {
-          interaction.reply({ content: error.toString(), ephemeral: true }).catch(console.error);
-        } else {
-          interaction.reply({ content: i18n.__("common.errorCommand"), ephemeral: true }).catch(console.error);
-        }
+          const errorCommandEmbed = new EmbedBuilder()
+            .setDescription(`${redX}` + i18n.__("common.errorCommand"))
+            .setColor("#FF0000");
+        
+        interaction.reply({ embeds: [errorCommandEmbed], ephemeral: true }).catch(console.error);        } 
+        else {
+          const permissionsErrorEmbed = new EmbedBuilder()
+            .setDescription(`${redX}` + error.toString())
+            .setColor("#FF0000");
+        
+        interaction.reply({ embeds: [permissionsErrorEmbed], ephemeral: true }).catch(console.error);        }
       }
     });
   }

@@ -82,8 +82,6 @@ export class Song {
   }
 
   public startMessage() {
-    // Create a MessageEmbed to display the title and URL
-
     const videoId = getVideoIdFromUrl(this.url);
     const thumbnailURL = `https://img.youtube.com/vi/${videoId}/default.jpg`;
 

@@ -1,7 +1,5 @@
 {
-  "name": "EvoBot",
-  "description": "🤖 Discord Music Bot built with discord.js",
-  "repository": "https://github.com/eritislami/evobot",
-  "logo": "https://i.imgur.com/JFxgbWH.png",
-  "keywords": ["discord", "discordjs", "typescript", "music", "bot"]
+  "name": "Mini-DJ-Beastie",
+  "description": "Personal music bot for Beastie's discord server.",
+  "repository": "https://github.com/TDBarnhouse/Mini-DJ-Beastie"
 }

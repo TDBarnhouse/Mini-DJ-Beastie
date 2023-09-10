@@ -1,13 +1,13 @@
 {
-  "name": "evobot",
-  "version": "2.7.0",
-  "description": "Discord music bot built with discord.js",
+  "name": "mini-dj-beastie",
+  "version": "1.0.0",
+  "description": "Personal music bot for Beastie's discord server.",
   "main": "index.ts",
-  "author": "Erit Islami <eritislami@gmail.com>",
+  "author": "ItsBeastieBoy",
   "private": true,
-  "homepage": "https://github.com/eritislami/evobot",
-  "repository": "github:eritislami/evobot",
-  "bugs": "https://github.com/eritislami/evobot/issues",
+  "homepage": "https://github.com/TDBarnhouse/Mini-DJ-Beastie",
+  "repository": "github:TDBarnhouse/Mini-DJ-Beastie",
+  "bugs": "https://github.com/TDBarnhouse/Mini-DJ-Beastie/issues",
   "engines": {
     "node": ">=16.11.0"
   },

@@ -34,7 +34,7 @@ export default {
     const search = query;
 
     const loadingEmbed = new EmbedBuilder()
-      .setDescription("⏳ Loading...")
+      .setDescription("Loading search results...")
       .setColor("#FF0000");
 
     if (interaction.replied) await interaction.editReply({ embeds: [loadingEmbed] }).catch(console.error);
@@ -70,6 +70,8 @@ export default {
       };
     });
 
+    interaction.deleteReply().catch(console.error);
+
     const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId("search-select")
@@ -92,15 +94,16 @@ export default {
         if (!(selectInteraction instanceof StringSelectMenuInteraction)) return;
 
         const loadingSelectedSongsEmbed = new EmbedBuilder()
-          .setDescription("⏳ Loading the selected songs...")
+          .setDescription("Loading the selected song...")
           .setColor("#FF0000");
-
+        
         selectInteraction.update({ embeds: [loadingSelectedSongsEmbed], components: [] });
 
         bot.slashCommandsMap
           .get("play")!
           .execute(interaction, selectInteraction.values[0])
           .then(() => {
+            selectInteraction.message?.delete();
             selectInteraction.values.slice(1).forEach((url) => {
               bot.slashCommandsMap.get("play")!.execute(interaction, url);
             });

@@ -47,7 +47,7 @@ export default {
     const url = argSongName;
 
     const loadingEmbed = new EmbedBuilder()
-      .setDescription("⏳ Loading...")
+      .setDescription("Loading song...")
       .setColor("#FF0000");
 
     if (interaction.replied) await interaction.editReply({ embeds: [loadingEmbed] }).catch(console.error);
@@ -102,6 +102,8 @@ export default {
       const queueAddedEmbed = new EmbedBuilder()
         .setDescription(`${greenCheck}` + i18n.__mf("play.queueAdded", { title: song.title, author: interaction.user.id }))
         .setColor("#FF0000");
+        
+        interaction.deleteReply().catch(console.error);
 
       return (interaction.channel as TextChannel)
         .send({ embeds: [queueAddedEmbed] })

@@ -222,6 +222,14 @@ export class MusicQueue {
         case "⏭":
           reaction.users.remove(user).catch(console.error);
           await this.bot.slashCommandsMap.get("skip")!.execute(this.interaction);
+          this.textChannel.send({
+            embeds: [
+              new EmbedBuilder()
+                .setDescription(`${greenCheck}` + i18n.__mf("skip.result", { author: user }))
+                .setColor("#FF0000")
+            ],
+          }).catch(console.error);
+
           break;
 
         case "⏯":
@@ -326,6 +334,14 @@ export class MusicQueue {
         case "⏹":
           reaction.users.remove(user).catch(console.error);
           await this.bot.slashCommandsMap.get("stop")!.execute(this.interaction);
+          this.textChannel.send({
+            embeds: [
+              new EmbedBuilder()
+                .setDescription(`${greenCheck}` + i18n.__mf("stop.result", { author: user }))
+                .setColor("#FF0000")
+            ],
+          }).catch(console.error);
+
           collector.stop();
           break;
 

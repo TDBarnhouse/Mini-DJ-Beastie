@@ -81,8 +81,11 @@
 	},
 	"remove": {
 		"description": "Remove a song from the queue",
+		"removePosition": "The position from the queue",
 		"errorNotQueue": "There is no queue.",
-		"result": "<@{author}> removed **{title}** from the queue."
+		"positionError": "You cannot remove the current song playing.",
+		"result": "<@{author}> removed **{title}** from the queue.",
+		"usageReply": "You must choose a song position from the queue you wish to remove."
 	},
 	"resume": {
 		"description": "Resume the music",
@@ -114,7 +117,7 @@
 		"errorNotValid": "The queue is only {length} song(s) long.",
 		"result": "<@{author}> skipped to queue position **{arg}**.",
 		"args": {
-			"number": "The queue position to skip to"
+			"position": "The queue position to skip to"
 		}
 	},
 	"stop": {
@@ -123,8 +126,8 @@
 		"result": "<@{author}> stopped the music."
 	},
 	"uptime": {
-		"description": "Check the uptime of the bot",
-		"result": "Uptime: `{days} day(s), {hours} hour(s), {minutes} minute(s), {seconds} second(s)`"
+		"description": "Check how long the bot has been running",
+		"result": "The bot has been live for: `{days} day(s), {hours} hour(s), {minutes} minute(s), {seconds} second(s)`"
 	},
 	"volume": {
 		"description": "Show the volume or change the volume",
@@ -144,8 +147,5 @@
 		"errorNotChannel": "You need to join a voice channel first.",
 		"cooldownMessage": "Please wait **{time}** more second(s) before reusing the `{name}` command.",
 		"errorCommand": "There was an error executing that command."
-	},
-	"volumeChange": {
-		"description": "volumeChange.description"
 	}
 }

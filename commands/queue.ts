@@ -30,12 +30,17 @@ export default {
     }
     let currentPage = 0;
     const embeds = generateQueueEmbed(interaction, queue.songs);
+    
+    const loadingEmbed = new EmbedBuilder()
+      .setDescription("Loading queue...")
+      .setColor("#FF0000");
 
-    await interaction.reply("⏳ Loading queue...");
+    await interaction.reply({
+      embeds: [loadingEmbed],
+    });
 
     if (interaction.replied)
       await interaction.editReply({
-        content: `**${i18n.__mf("queue.currentPage")} ${currentPage + 1}/${embeds.length}**`,
         embeds: [embeds[currentPage]]
       });
 

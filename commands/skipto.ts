@@ -10,7 +10,7 @@ export default {
     .setName("skipto")
     .setDescription(i18n.__("skipto.description"))
     .addIntegerOption((option) =>
-      option.setName("number").setDescription(i18n.__("skipto.args.number")).setRequired(true)
+      option.setName("position").setDescription(i18n.__("skipto.args.position")).setRequired(true)
     ),
   execute(interaction: ChatInputCommandInteraction) {
     const playlistSlotArg = interaction.options.getInteger("position");
@@ -62,7 +62,7 @@ export default {
     queue.player.stop();
 
     const resultEmbed = new EmbedBuilder()
-      .setDescription(`${greenCheck}` + i18n.__mf("skipto.result", { author: interaction.user.id, arg: playlistSlotArg - 1 }))
+      .setDescription(`${greenCheck}` + i18n.__mf("skipto.result", { author: interaction.user.id, arg: playlistSlotArg }))
       .setColor("#FF0000");
 
     interaction.reply({ embeds: [resultEmbed] }).catch(console.error);

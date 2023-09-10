@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, CommandInteraction, EmbedBuilder,  ChatInputCommandInteraction } from "discord.js";
+import { SlashCommandBuilder, CommandInteraction, ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { bot } from "../index";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
@@ -13,11 +13,11 @@ export default {
     .setName("remove")
     .setDescription(i18n.__("remove.description"))
     .addIntegerOption((option) =>
-      option.setName("position").setDescription(i18n.__("remove.description")).setRequired(true)
+      option.setName("position").setDescription(i18n.__("remove.removePosition")).setRequired(true)
     ),
   execute(interaction: ChatInputCommandInteraction) {
     const guildMember = interaction.guild!.members.cache.get(interaction.user.id);
-    const removeArgs = interaction.options.getString("slot");
+    const removeArgs = interaction.options.getInteger("position");
 
     const queue = bot.queues.get(interaction.guild!.id);
 
@@ -25,7 +25,7 @@ export default {
       const errorEmbed = new EmbedBuilder()
         .setDescription(`${redX}` + i18n.__("remove.errorNotQueue"))
         .setColor("#FF0000");
-
+        
       return interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
     }
 
@@ -33,55 +33,59 @@ export default {
       const errorEmbed = new EmbedBuilder()
         .setDescription(`${redX}` + i18n.__("common.errorNotChannel"))
         .setColor("#FF0000");
-
-      return interaction.reply({ embeds: [errorEmbed] });
+        
+      return interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
     }
 
     if (!removeArgs) {
-      const usageEmbed = new EmbedBuilder()
-        .setDescription(i18n.__mf("remove.usageReply", { prefix: bot.prefix }))
+      const usageReplyEmbed = new EmbedBuilder()
+        .setDescription(i18n.__mf("remove.usageReply"))
         .setColor("#FF0000");
-
-      return interaction.reply({ embeds: [usageEmbed], ephemeral: true });
+        
+      return interaction.reply({ embeds: [usageReplyEmbed], ephemeral: true });
     }
 
-    const songs = removeArgs.split(",").map((arg: any) => parseInt(arg));
+    if (removeArgs == 1) { 
+      const positionErrorEmbed = new EmbedBuilder()
+        .setDescription(`${redX}` + i18n.__mf("remove.positionError"))
+        .setColor("#FF0000");
+        
+      return interaction.reply({ embeds: [positionErrorEmbed], ephemeral: true });
+    }
+
+    const songs = removeArgs.toString().split(",").map((arg: string) => parseInt(arg));
 
     let removed: Song[] = [];
 
-    if (pattern.test(removeArgs)) {
+    if (pattern.test(removeArgs.toString())) {
       queue.songs = queue.songs.filter((item, index) => {
-        if (songs.find((songIndex: any) => songIndex - 1 === index)) removed.push(item);
+        if (songs.find((songIndex: number) => songIndex - 1 === index)) removed.push(item);
         else return true;
       });
 
       const resultEmbed = new EmbedBuilder()
-        .setDescription(
-          `${greenCheck}` + i18n.__mf("remove.result", {
-            title: removed.map((song) => song.title).join("\n"),
-            author: interaction.user.id
-          })
-        )
+        .setDescription(`${greenCheck}` + i18n.__mf("remove.result", {
+          title: removed.map((song) => song.title).join("\n"),
+          author: interaction.user.id
+        }))
         .setColor("#FF0000");
-
-      return interaction.reply({ embeds: [resultEmbed] });
-    } else if (!isNaN(+removeArgs) && +removeArgs >= 1 && +removeArgs <= queue.songs.length) {
+        
+      interaction.reply({ embeds: [resultEmbed] });
+    } else if (!isNaN(removeArgs) && removeArgs >= 1 && removeArgs <= queue.songs.length) {
       const resultEmbed = new EmbedBuilder()
-        .setDescription(
-          `${greenCheck}` + i18n.__mf("remove.result", {
-            title: queue.songs.splice(+removeArgs - 1, 1)[0].title,
-            author: interaction.user.id
-          })
-        )
+        .setDescription(`${greenCheck}` + i18n.__mf("remove.result", {
+          title: queue.songs.splice(+removeArgs - 1, 1)[0].title,
+          author: interaction.user.id
+        }))
         .setColor("#FF0000");
-
-      return interaction.reply({ embeds: [resultEmbed] });
+        
+      interaction.reply({ embeds: [resultEmbed] });
     } else {
-      const usageEmbed = new EmbedBuilder()
-        .setDescription(i18n.__mf("remove.usageReply", { prefix: bot.prefix }))
+      const usageReplyEmbed = new EmbedBuilder()
+        .setDescription(i18n.__mf("remove.usageReply"))
         .setColor("#FF0000");
-
-      return interaction.reply({ embeds: [usageEmbed] });
+        
+      interaction.reply({ embeds: [usageReplyEmbed], ephemeral: true });
     }
   }
 };

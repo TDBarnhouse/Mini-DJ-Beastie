@@ -33,7 +33,7 @@ export class Bot {
     this.client.login(config.TOKEN);
 
     this.client.on("ready", () => {
-      console.log(`${this.client.user!.username} ready!`);
+      console.log(`${this.client.user!.username} is now online.`);
 
       this.registerSlashCommands();
     });

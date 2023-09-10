@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, CommandInteraction, ChatInputCommandInteraction } from "discord.js";
+import { SlashCommandBuilder, CommandInteraction, EmbedBuilder,  ChatInputCommandInteraction } from "discord.js";
 import { bot } from "../index";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
@@ -6,26 +6,44 @@ import { canModifyQueue } from "../utils/queue";
 
 const pattern = /^[0-9]{1,2}(\s*,\s*[0-9]{1,2})*$/;
 
+const { greenCheck, redX } = require('../variables/logos.js');
+
 export default {
   data: new SlashCommandBuilder()
     .setName("remove")
     .setDescription(i18n.__("remove.description"))
-    .addStringOption((option) =>
-      option.setName("slot").setDescription(i18n.__("remove.description")).setRequired(true)
+    .addIntegerOption((option) =>
+      option.setName("position").setDescription(i18n.__("remove.description")).setRequired(true)
     ),
   execute(interaction: ChatInputCommandInteraction) {
-    const guildMemer = interaction.guild!.members.cache.get(interaction.user.id);
+    const guildMember = interaction.guild!.members.cache.get(interaction.user.id);
     const removeArgs = interaction.options.getString("slot");
 
     const queue = bot.queues.get(interaction.guild!.id);
 
-    if (!queue)
-      return interaction.reply({ content: i18n.__("remove.errorNotQueue"), ephemeral: true }).catch(console.error);
+    if (!queue) {
+      const errorEmbed = new EmbedBuilder()
+        .setDescription(`${redX}` + i18n.__("remove.errorNotQueue"))
+        .setColor("#FF0000");
 
-    if (!canModifyQueue(guildMemer!)) return i18n.__("common.errorNotChannel");
+      return interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
+    }
 
-    if (!removeArgs)
-      return interaction.reply({ content: i18n.__mf("remove.usageReply", { prefix: bot.prefix }), ephemeral: true });
+    if (!canModifyQueue(guildMember!)) {
+      const errorEmbed = new EmbedBuilder()
+        .setDescription(`${redX}` + i18n.__("common.errorNotChannel"))
+        .setColor("#FF0000");
+
+      return interaction.reply({ embeds: [errorEmbed] });
+    }
+
+    if (!removeArgs) {
+      const usageEmbed = new EmbedBuilder()
+        .setDescription(i18n.__mf("remove.usageReply", { prefix: bot.prefix }))
+        .setColor("#FF0000");
+
+      return interaction.reply({ embeds: [usageEmbed], ephemeral: true });
+    }
 
     const songs = removeArgs.split(",").map((arg: any) => parseInt(arg));
 
@@ -37,21 +55,33 @@ export default {
         else return true;
       });
 
-      interaction.reply(
-        i18n.__mf("remove.result", {
-          title: removed.map((song) => song.title).join("\n"),
-          author: interaction.user.id
-        })
-      );
+      const resultEmbed = new EmbedBuilder()
+        .setDescription(
+          `${greenCheck}` + i18n.__mf("remove.result", {
+            title: removed.map((song) => song.title).join("\n"),
+            author: interaction.user.id
+          })
+        )
+        .setColor("#FF0000");
+
+      return interaction.reply({ embeds: [resultEmbed] });
     } else if (!isNaN(+removeArgs) && +removeArgs >= 1 && +removeArgs <= queue.songs.length) {
-      return interaction.reply(
-        i18n.__mf("remove.result", {
-          title: queue.songs.splice(+removeArgs - 1, 1)[0].title,
-          author: interaction.user.id
-        })
-      );
+      const resultEmbed = new EmbedBuilder()
+        .setDescription(
+          `${greenCheck}` + i18n.__mf("remove.result", {
+            title: queue.songs.splice(+removeArgs - 1, 1)[0].title,
+            author: interaction.user.id
+          })
+        )
+        .setColor("#FF0000");
+
+      return interaction.reply({ embeds: [resultEmbed] });
     } else {
-      return interaction.reply({ content: i18n.__mf("remove.usageReply", { prefix: bot.prefix }) });
+      const usageEmbed = new EmbedBuilder()
+        .setDescription(i18n.__mf("remove.usageReply", { prefix: bot.prefix }))
+        .setColor("#FF0000");
+
+      return interaction.reply({ embeds: [usageEmbed] });
     }
   }
 };

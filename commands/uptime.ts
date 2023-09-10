@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } from "discord.js";
 import { bot } from "../index";
 import { i18n } from "../utils/i18n";
 
@@ -14,8 +14,12 @@ export default {
     minutes %= 60;
     hours %= 24;
 
-    return interaction
-      .reply({ content: i18n.__mf("uptime.result", { days: days, hours: hours, minutes: minutes, seconds: seconds }) })
-      .catch(console.error);
+    const uptimeEmbed = new EmbedBuilder()
+      .setDescription(
+        i18n.__mf("uptime.result", { days: days, hours: hours, minutes: minutes, seconds: seconds })
+      )
+      .setColor("#FF0000");
+
+    return interaction.reply({ embeds: [uptimeEmbed] }).catch(console.error);
   }
 };

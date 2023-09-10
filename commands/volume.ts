@@ -1,7 +1,9 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } from "discord.js";
 import { bot } from "../index";
 import { i18n } from "../utils/i18n";
 import { canModifyQueue } from "../utils/queue";
+
+const { greenCheck, redX } = require('../variables/logos.js');
 
 export default {
   data: new SlashCommandBuilder()
@@ -10,29 +12,56 @@ export default {
     .addIntegerOption((option) => option.setName("volume").setDescription(i18n.__("volume.description"))),
   execute(interaction: ChatInputCommandInteraction) {
     const queue = bot.queues.get(interaction.guild!.id);
-    const guildMemer = interaction.guild!.members.cache.get(interaction.user.id);
+    const guildMember = interaction.guild!.members.cache.get(interaction.user.id);
     const volumeArg = interaction.options.getInteger("volume");
 
-    if (!queue)
-      return interaction.reply({ content: i18n.__("volume.errorNotQueue"), ephemeral: true }).catch(console.error);
+    if (!queue) {
+      const errorEmbed = new EmbedBuilder()
+        .setDescription(`${redX}` + i18n.__("volume.errorNotQueue"))
+        .setColor("#FF0000");
 
-    if (!canModifyQueue(guildMemer!))
-      return interaction.reply({ content: i18n.__("volume.errorNotChannel"), ephemeral: true }).catch(console.error);
+      return interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
+    }
 
-    if (!volumeArg || volumeArg === queue.volume)
-      return interaction
-        .reply({ content: i18n.__mf("volume.currentVolume", { volume: queue.volume }) })
-        .catch(console.error);
+    if (!canModifyQueue(guildMember!)) {
+      const errorEmbed = new EmbedBuilder()
+        .setDescription(`${redX}` + i18n.__("volume.errorNotChannel"))
+        .setColor("#FF0000");
 
-    if (isNaN(volumeArg))
-      return interaction.reply({ content: i18n.__("volume.errorNotNumber"), ephemeral: true }).catch(console.error);
+      return interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
+    }
 
-    if (Number(volumeArg) > 100 || Number(volumeArg) < 0)
-      return interaction.reply({ content: i18n.__("volume.errorNotValid"), ephemeral: true }).catch(console.error);
+    if (!volumeArg || volumeArg === queue.volume) {
+      const currentVolumeEmbed = new EmbedBuilder()
+        .setDescription(i18n.__mf("volume.currentVolume", { volume: queue.volume }))
+        .setColor("#FF0000");
+
+      return interaction.reply({ embeds: [currentVolumeEmbed] }).catch(console.error);
+    }
+
+    if (isNaN(volumeArg)) {
+      const errorEmbed = new EmbedBuilder()
+        .setDescription(`${redX}` + i18n.__("volume.errorNotNumber"))
+        .setColor("#FF0000");
+
+      return interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
+    }
+
+    if (volumeArg > 100 || volumeArg < 0) {
+      const errorEmbed = new EmbedBuilder()
+        .setDescription(`${redX}` + i18n.__("volume.errorNotValid"))
+        .setColor("#FF0000");
+
+      return interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
+    }
 
     queue.volume = volumeArg;
     queue.resource.volume?.setVolumeLogarithmic(volumeArg / 100);
 
-    return interaction.reply({ content: i18n.__mf("volume.result", { arg: volumeArg }) }).catch(console.error);
+    const resultEmbed = new EmbedBuilder()
+      .setDescription(`${greenCheck}` + i18n.__mf("volume.result", { arg: volumeArg }))
+      .setColor("#FF0000");
+
+    return interaction.reply({ embeds: [resultEmbed] }).catch(console.error);
   }
 };

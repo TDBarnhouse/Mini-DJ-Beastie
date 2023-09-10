@@ -12,6 +12,8 @@ import { Playlist } from "../structs/Playlist";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
 
+const { greenCheck, redX } = require('../variables/logos.js');
+
 export default {
   data: new SlashCommandBuilder()
     .setName("playlist")
@@ -27,26 +29,28 @@ export default {
   async execute(interaction: ChatInputCommandInteraction, queryOptionName = 'playlist') {
     let argSongName = interaction.options.getString(queryOptionName);
 
-    const guildMemer = interaction.guild!.members.cache.get(interaction.user.id);
-    const { channel } = guildMemer!.voice;
+    const guildMember = interaction.guild!.members.cache.get(interaction.user.id);
+    const { channel } = guildMember!.voice;
 
     const queue = bot.queues.get(interaction.guild!.id);
 
-    if (!channel)
-      return interaction.reply({ content: i18n.__("playlist.errorNotChannel"), ephemeral: true }).catch(console.error);
+    if (!channel) {
+      const errorNotInChannelEmbed = new EmbedBuilder()
+        .setDescription(`${redX}` + i18n.__("playlist.errorNotChannel"))
+        .setColor("#FF0000");
 
-    if (queue && channel.id !== queue.connection.joinConfig.channelId)
+      return interaction.reply({ embeds: [errorNotInChannelEmbed], ephemeral: true }).catch(console.error);
+    }
+    if (queue && channel.id !== queue.connection.joinConfig.channelId) {
+      const errorNotInSameChannelEmbed = new EmbedBuilder()
+        .setDescription(`${redX}` + i18n.__mf("play.errorNotInSameChannel", { user: interaction.client.user!.username }))
+        .setColor("#FF0000");
+
       if (interaction.replied)
-        return interaction
-          .editReply({ content: i18n.__mf("play.errorNotInSameChannel", { user: interaction.client.user!.username }) })
-          .catch(console.error);
+        return interaction.editReply({ embeds: [errorNotInSameChannelEmbed] }).catch(console.error);
       else
-        return interaction
-          .reply({
-            content: i18n.__mf("play.errorNotInSameChannel", { user: interaction.client.user!.username }),
-            ephemeral: true
-          })
-          .catch(console.error);
+        return interaction.reply({ embeds: [errorNotInSameChannelEmbed], ephemeral: true }).catch(console.error);
+    }
 
     let playlist;
 
@@ -55,13 +59,15 @@ export default {
     } catch (error) {
       console.error(error);
 
-      if (interaction.replied)
-        return interaction.editReply({ content: i18n.__("playlist.errorNotFoundPlaylist") }).catch(console.error);
-      else
-        return interaction
-          .reply({ content: i18n.__("playlist.errorNotFoundPlaylist"), ephemeral: true })
-          .catch(console.error);
-    }
+    const errorNotFoundPlaylistEmbed = new EmbedBuilder()
+      .setDescription(`${redX}` + i18n.__("playlist.errorNotFoundPlaylist"))
+      .setColor("#FF0000");
+
+    if (interaction.replied)
+      return interaction.editReply({ embeds: [errorNotFoundPlaylistEmbed] }).catch(console.error);
+    else
+      return interaction.reply({ embeds: [errorNotFoundPlaylistEmbed], ephemeral: true }).catch(console.error);
+  }
 
     if (queue) {
       queue.songs.push(...playlist.videos);
@@ -86,18 +92,19 @@ export default {
       .setTitle(`${playlist.data.title}`)
       .setDescription(playlist.videos.map((song: Song, index: number) => `${index + 1}. ${song.title}`).join("\n").slice(0, 4095))
       .setURL(playlist.data.url!)
-      .setColor("#F8AA2A")
-      .setTimestamp();
+      .setColor("#FF0000")
+
+    const startedPlaylistEmbed = new EmbedBuilder()
+      .setDescription(`${greenCheck}` + i18n.__mf("playlist.startedPlaylist", { author: interaction.user.id }))
+      .setColor("#FF0000");
 
     if (interaction.replied)
       return interaction.editReply({
-        content: i18n.__mf("playlist.startedPlaylist", { author: interaction.user.id }),
-        embeds: [playlistEmbed]
+        embeds: [startedPlaylistEmbed, playlistEmbed]
       });
     interaction
       .reply({
-        content: i18n.__mf("playlist.startedPlaylist", { author: interaction.user.id }),
-        embeds: [playlistEmbed]
+        embeds: [startedPlaylistEmbed, playlistEmbed]
       })
       .catch(console.error);
   }

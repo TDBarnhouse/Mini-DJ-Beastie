@@ -4,6 +4,13 @@ import { i18n } from "../utils/i18n";
 import { videoPattern, isURL } from "../utils/patterns";
 const { stream , video_basic_info } = require('play-dl');
 
+import { EmbedBuilder } from "discord.js";
+
+function getVideoIdFromUrl(url: string) {
+  const match = url.match(/[?&]v=([^?&]+)/);
+  return match ? match[1] : null;
+}
+
 export interface SongData {
   url: string;
   title: string;
@@ -38,10 +45,10 @@ export class Song {
     else {
       const result = await youtube.searchOne(search);
 
-      result ? null : console.log(`No results found for ${search}`); // This is for handling the case where no results are found (spotify links for example)
+      result ? null : console.log(`No results found for ${search}.`); // This is for handling the case where no results are found (spotify links for example)
 
       if (!result) {
-        let err = new Error(`No search results found for ${search}`);
+        let err = new Error(`No search results found for ${search}.`);
         err.name = "NoResults";
         if (isURL.test(url)) err.name = "InvalidURL";
 
@@ -75,6 +82,17 @@ export class Song {
   }
 
   public startMessage() {
-    return i18n.__mf("play.startedPlaying", { title: this.title, url: this.url });
+    // Create a MessageEmbed to display the title and URL
+
+    const videoId = getVideoIdFromUrl(this.url);
+    const thumbnailURL = `https://img.youtube.com/vi/${videoId}/default.jpg`;
+
+    const embed = new EmbedBuilder()
+      .setTitle("Started Playing")
+      .setDescription(`[${this.title}](${this.url})`)
+      .setThumbnail(thumbnailURL)
+      .setColor("#FF0000");
+
+    return { embeds: [embed] };
   }
 }

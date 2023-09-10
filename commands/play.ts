@@ -1,10 +1,12 @@
 import { DiscordGatewayAdapterCreator, joinVoiceChannel } from "@discordjs/voice";
-import { ChatInputCommandInteraction, PermissionsBitField, SlashCommandBuilder, TextChannel } from "discord.js";
+import { ChatInputCommandInteraction, PermissionsBitField, SlashCommandBuilder, TextChannel, EmbedBuilder } from "discord.js";
 import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
 import { playlistPattern } from "../utils/patterns";
+
+const { greenCheck, redX } = require('../variables/logos.js');
 
 export default {
   data: new SlashCommandBuilder()
@@ -25,32 +27,35 @@ export default {
     const guildMember = interaction.guild!.members.cache.get(interaction.user.id);
     const { channel } = guildMember!.voice;
 
-    if (!channel)
-      return interaction.reply({ content: i18n.__("play.errorNotChannel"), ephemeral: true }).catch(console.error);
+    if (!channel) {
+      const errorNotInChannelEmbed = new EmbedBuilder()
+        .setDescription(`${redX}` + i18n.__("play.errorNotChannel"))
+        .setColor("#FF0000");
 
+      return interaction.reply({ embeds: [errorNotInChannelEmbed], ephemeral: true }).catch(console.error);
+    }
     const queue = bot.queues.get(interaction.guild!.id);
 
-    if (queue && channel.id !== queue.connection.joinConfig.channelId)
-      return interaction
-        .reply({
-          content: i18n.__mf("play.errorNotInSameChannel", { user: bot.client.user!.username }),
-          ephemeral: true
-        })
-        .catch(console.error);
+    if (queue && channel.id !== queue.connection.joinConfig.channelId) {
+      const errorNotInSameChannelEmbed = new EmbedBuilder()
+        .setDescription(`${redX}` + i18n.__mf("play.errorNotInSameChannel", { user: bot.client.user!.username }))
+        .setColor("#FF0000");
 
-    if (!argSongName)
-      return interaction
-        .reply({ content: i18n.__mf("play.usageReply", { prefix: bot.prefix }), ephemeral: true })
-        .catch(console.error);
+      return interaction.reply({ embeds: [errorNotInSameChannelEmbed], ephemeral: true }).catch(console.error);
+    }
 
     const url = argSongName;
 
-    if (interaction.replied) await interaction.editReply("⏳ Loading...").catch(console.error);
-    else await interaction.reply("⏳ Loading...");
+    const loadingEmbed = new EmbedBuilder()
+      .setDescription("⏳ Loading...")
+      .setColor("#FF0000");
 
-    // Start the playlist if playlist url was provided
+    if (interaction.replied) await interaction.editReply({ embeds: [loadingEmbed] }).catch(console.error);
+    else await interaction.reply({ embeds: [loadingEmbed] });
+
+    // Start the playlist if playlist URL was provided
     if (playlistPattern.test(url)) {
-      await interaction.editReply("🔗 Link is playlist").catch(console.error);
+      if (interaction.replied) await interaction.editReply({ embeds: [loadingEmbed] }).catch(console.error);
 
       return bot.slashCommandsMap.get("playlist")!.execute(interaction, 'song');
     }
@@ -60,26 +65,46 @@ export default {
     try {
       song = await Song.from(url, url);
     } catch (error: any) {
-      if (error.name == "NoResults")
-        return interaction
-          .reply({ content: i18n.__mf("play.errorNoResults", { url: `<${url}>` }), ephemeral: true })
-          .catch(console.error);
-      if (error.name == "InvalidURL")
-        return interaction
-          .reply({ content: i18n.__mf("play.errorInvalidURL", { url: `<${url}>` }), ephemeral: true })
-          .catch(console.error);
+      if (error.name == "NoResults") {
+        const errorNoResultsEmbed = new EmbedBuilder()
+          .setDescription(`${redX}` + i18n.__mf("play.errorNoResults", { url: `<${url}>` }))
+          .setColor("#FF0000");
+
+        return interaction.reply({ embeds: [errorNoResultsEmbed], ephemeral: true }).catch(console.error);
+      }
+      if (error.name == "InvalidURL") {
+        const errorInvalidURLEmbed = new EmbedBuilder()
+          .setDescription(`${redX}` + i18n.__mf("play.errorInvalidURL", { url: `<${url}>` }))
+          .setColor("#FF0000");
+
+        return interaction.reply({ embeds: [errorInvalidURLEmbed], ephemeral: true }).catch(console.error);
+      }
 
       console.error(error);
-      if (interaction.replied)
-        return await interaction.editReply({ content: i18n.__("common.errorCommand") }).catch(console.error);
-      else return interaction.reply({ content: i18n.__("common.errorCommand"), ephemeral: true }).catch(console.error);
+      if (interaction.replied) {
+        const commonErrorEmbed = new EmbedBuilder()
+          .setDescription(`${redX}` + i18n.__("common.errorCommand"))
+          .setColor("#FF0000");
+
+        return await interaction.editReply({ embeds: [commonErrorEmbed] }).catch(console.error);
+      } else {
+        const commonErrorEmbed = new EmbedBuilder()
+          .setDescription(`${redX}` + i18n.__("common.errorCommand"))
+          .setColor("#FF0000");
+
+        return interaction.reply({ embeds: [commonErrorEmbed], ephemeral: true }).catch(console.error);
+      }
     }
 
     if (queue) {
       queue.enqueue(song);
 
+      const queueAddedEmbed = new EmbedBuilder()
+        .setDescription(`${greenCheck}` + i18n.__mf("play.queueAdded", { title: song.title, author: interaction.user.id }))
+        .setColor("#FF0000");
+
       return (interaction.channel as TextChannel)
-        .send({ content: i18n.__mf("play.queueAdded", { title: song.title, author: interaction.user.id }) })
+        .send({ embeds: [queueAddedEmbed] })
         .catch(console.error);
     }
 

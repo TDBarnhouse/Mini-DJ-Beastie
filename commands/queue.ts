@@ -12,14 +12,22 @@ import { bot } from "../index";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
 
+const { redX } = require('../variables/logos.js');
+
 export default {
   data: new SlashCommandBuilder().setName("queue").setDescription(i18n.__("queue.description")),
   cooldown: 5,
   permissions: [PermissionsBitField.Flags.AddReactions, PermissionsBitField.Flags.ManageMessages],
   async execute(interaction: ChatInputCommandInteraction) {
     const queue = bot.queues.get(interaction.guild!.id);
-    if (!queue || !queue.songs.length) return interaction.reply({ content: i18n.__("queue.errorNotQueue") });
+    
+    if (!queue || !queue.songs.length) {
+      const errorEmbed = new EmbedBuilder()
+        .setDescription(`${redX}` + i18n.__("nowplaying.errorNotQueue"))
+        .setColor("#FF0000");
 
+      return interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
+    }
     let currentPage = 0;
     const embeds = generateQueueEmbed(interaction, queue.songs);
 
@@ -92,9 +100,9 @@ function generateQueueEmbed(interaction: CommandInteraction, songs: Song[]) {
     const embed = new EmbedBuilder()
       .setTitle(i18n.__("queue.embedTitle"))
       .setThumbnail(interaction.guild?.iconURL()!)
-      .setColor("#F8AA2A")
+      .setColor("#FF0000")
       .setDescription(i18n.__mf("queue.embedCurrentSong", { title: songs[0].title, url: songs[0].url, info: info }))
-      .setTimestamp();
+      .setFooter({ text: `Pages: ${Math.ceil(songs.length / 10)}` })
     embeds.push(embed);
   }
 

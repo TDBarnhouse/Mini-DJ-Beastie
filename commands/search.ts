@@ -3,11 +3,14 @@ import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
-  StringSelectMenuInteraction
+  StringSelectMenuInteraction,
+  EmbedBuilder
 } from "discord.js";
 import youtube, { Video } from "youtube-sr";
 import { bot } from "..";
 import { i18n } from "../utils/i18n";
+
+const { greenCheck, redX } = require('../variables/logos.js');
 
 export default {
   data: new SlashCommandBuilder()
@@ -20,12 +23,22 @@ export default {
     const query = interaction.options.getString("query", true);
     const member = interaction.guild!.members.cache.get(interaction.user.id);
 
-    if (!member?.voice.channel)
-      return interaction.reply({ content: i18n.__("search.errorNotChannel"), ephemeral: true }).catch(console.error);
+    if (!member?.voice.channel) {
+      const errorEmbed = new EmbedBuilder()
+        .setDescription(`${redX}` + i18n.__("search.errorNotChannel"))
+        .setColor("#FF0000");
+
+      return interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(console.error);
+    }
 
     const search = query;
 
-    await interaction.reply("⏳ Loading...").catch(console.error);
+    const loadingEmbed = new EmbedBuilder()
+      .setDescription("⏳ Loading...")
+      .setColor("#FF0000");
+
+    if (interaction.replied) await interaction.editReply({ embeds: [loadingEmbed] }).catch(console.error);
+    else await interaction.reply({ embeds: [loadingEmbed] });
 
     let results: Video[] = [];
 
@@ -33,12 +46,20 @@ export default {
       results = await youtube.search(search, { limit: 10, type: "video" });
     } catch (error: any) {
       console.error(error);
-      interaction.editReply({ content: i18n.__("common.errorCommand") }).catch(console.error);
+      const errorEmbed = new EmbedBuilder()
+        .setDescription(`${redX}` + i18n.__("common.errorCommand"))
+        .setColor("#FF0000");
+
+      interaction.editReply({ embeds: [errorEmbed] }).catch(console.error);
       return;
     }
 
     if (!results || !results[0]) {
-      interaction.editReply({ content: i18n.__("search.noResults") })
+      const noResultsEmbed = new EmbedBuilder()
+        .setDescription(`${redX}` + i18n.__("search.noResults"))
+        .setColor("#FF0000");
+
+      interaction.editReply({ embeds: [noResultsEmbed] });
       return;
     }
 
@@ -59,7 +80,7 @@ export default {
     );
 
     const followUp = await interaction.followUp({
-      content: "Choose songs to play",
+      content: "Choose which song to play",
       components: [row]
     });
 
@@ -70,7 +91,11 @@ export default {
       .then((selectInteraction) => {
         if (!(selectInteraction instanceof StringSelectMenuInteraction)) return;
 
-        selectInteraction.update({ content: "⏳ Loading the selected songs...", components: [] });
+        const loadingSelectedSongsEmbed = new EmbedBuilder()
+          .setDescription("⏳ Loading the selected songs...")
+          .setColor("#FF0000");
+
+        selectInteraction.update({ embeds: [loadingSelectedSongsEmbed], components: [] });
 
         bot.slashCommandsMap
           .get("play")!

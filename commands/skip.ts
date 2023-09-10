@@ -1,20 +1,38 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } from "discord.js";
 import { bot } from "../index";
 import { i18n } from "../utils/i18n";
 import { canModifyQueue } from "../utils/queue";
+
+const { greenCheck, redX } = require('../variables/logos.js');
 
 export default {
   data: new SlashCommandBuilder().setName("skip").setDescription(i18n.__("skip.description")),
   execute(interaction: ChatInputCommandInteraction) {
     const queue = bot.queues.get(interaction.guild!.id);
-    const guildMemer = interaction.guild!.members.cache.get(interaction.user.id);
+    const guildMember = interaction.guild!.members.cache.get(interaction.user.id);
 
-    if (!queue) return interaction.reply(i18n.__("skip.errorNotQueue")).catch(console.error);
+    if (!queue) {
+      const errorEmbed = new EmbedBuilder()
+        .setDescription(`${redX}` + i18n.__("skip.errorNotQueue"))
+        .setColor("#FF0000");
 
-    if (!canModifyQueue(guildMemer!)) return i18n.__("common.errorNotChannel");
+      return interaction.reply({ embeds: [errorEmbed] }).catch(console.error);
+    }
+
+    if (!canModifyQueue(guildMember!)) {
+      const errorEmbed = new EmbedBuilder()
+        .setDescription(`${redX}` + i18n.__("common.errorNotChannel"))
+        .setColor("#FF0000");
+
+      return interaction.reply({ embeds: [errorEmbed] });
+    }
 
     queue.player.stop(true);
 
-    interaction.reply({ content: i18n.__mf("skip.result", { author: interaction.user.id }) }).catch(console.error);
+    const resultEmbed = new EmbedBuilder()
+      .setDescription(`${greenCheck}` + i18n.__mf("skip.result", { author: interaction.user.id }))
+      .setColor("#FF0000");
+
+    interaction.reply({ embeds: [resultEmbed] }).catch(console.error);
   }
 };

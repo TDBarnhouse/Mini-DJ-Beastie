@@ -13,7 +13,7 @@ export default {
       option.setName("number").setDescription(i18n.__("skipto.args.number")).setRequired(true)
     ),
   execute(interaction: ChatInputCommandInteraction) {
-    const playlistSlotArg = interaction.options.getInteger("number");
+    const playlistSlotArg = interaction.options.getInteger("position");
     const guildMember = interaction.guild!.members.cache.get(interaction.user.id);
 
     if (!playlistSlotArg || isNaN(playlistSlotArg)) {

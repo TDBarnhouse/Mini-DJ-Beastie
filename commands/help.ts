@@ -20,8 +20,6 @@ export default {
       });
     });
 
-    helpEmbed.setTimestamp();
-
     return interaction.reply({ embeds: [helpEmbed] }).catch(console.error);
   }
 };

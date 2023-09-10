@@ -9,7 +9,7 @@ export default {
   data: new SlashCommandBuilder()
     .setName("volume")
     .setDescription(i18n.__("volume.description"))
-    .addIntegerOption((option) => option.setName("volume").setDescription(i18n.__("volumeChange.description"))),
+    .addIntegerOption((option) => option.setName("volume").setDescription(i18n.__("volume.volumeChange"))),
   execute(interaction: ChatInputCommandInteraction) {
     const queue = bot.queues.get(interaction.guild!.id);
     const guildMember = interaction.guild!.members.cache.get(interaction.user.id);

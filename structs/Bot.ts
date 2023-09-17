@@ -19,7 +19,7 @@ import { i18n } from "../utils/i18n";
 import { MissingPermissionsException } from "../utils/MissingPermissionsException";
 import { MusicQueue } from "./MusicQueue";
 
-const { greenCheck, redX } = require('../variables/logos.js');
+const { redX } = require('../variables/logos.js');
 
 export class Bot {
   public readonly prefix = config.PREFIX;

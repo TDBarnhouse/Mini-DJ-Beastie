@@ -29,7 +29,8 @@ export class Playlist {
 
     if (urlValid) {
       playlist = await youtube.getPlaylist(url);
-    } else {
+    } 
+    else {
       const result = await youtube.searchOne(search, "playlist");
 
       playlist = await youtube.getPlaylist(result.url!);
@@ -37,4 +38,4 @@ export class Playlist {
 
     return new this(playlist);
   }
-}
+};

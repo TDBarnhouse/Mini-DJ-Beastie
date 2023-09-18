@@ -5,7 +5,8 @@ let config: Config;
 
 try {
   config = require("../config.json");
-} catch (error) {
+} 
+catch (error) {
   config = {
     TOKEN: process.env.TOKEN || "",
     PREFIX: process.env.PREFIX || "!",

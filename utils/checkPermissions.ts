@@ -18,4 +18,4 @@ export async function checkPermissions(
   const missing = member.permissions.missing(requiredPermissions);
 
   return { result: !Boolean(missing.length), missing };
-}
+};

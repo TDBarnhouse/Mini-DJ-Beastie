@@ -6,4 +6,4 @@ export class MissingPermissionsException {
   public toString() {
     return `${this.message} ${this.permissions.join(", ")}`;
   }
-}
+};

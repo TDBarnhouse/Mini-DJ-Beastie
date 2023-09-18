@@ -102,10 +102,12 @@ export class Bot {
 
         if (permissionsCheck.result) {
           command.execute(interaction as ChatInputCommandInteraction);
-        } else {
+        } 
+        else {
           throw new MissingPermissionsException(permissionsCheck.missing);
         }
-      } catch (error: any) {
+      } 
+      catch (error: any) {
         console.error(error);
 
         if (error.message.includes("permissions")) {
@@ -123,4 +125,4 @@ export class Bot {
       }
     });
   }
-}
+};

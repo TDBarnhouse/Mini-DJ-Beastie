@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, CommandInteraction, ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { bot } from "../index";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
@@ -71,7 +71,8 @@ export default {
         .setColor("#FF0000");
         
       interaction.reply({ embeds: [resultEmbed] });
-    } else if (!isNaN(removeArgs) && removeArgs >= 1 && removeArgs <= queue.songs.length) {
+    } 
+    else if (!isNaN(removeArgs) && removeArgs >= 1 && removeArgs <= queue.songs.length) {
       const resultEmbed = new EmbedBuilder()
         .setDescription(`${greenCheck}` + i18n.__mf("remove.result", {
           title: queue.songs.splice(+removeArgs - 1, 1)[0].title,
@@ -80,7 +81,8 @@ export default {
         .setColor("#FF0000");
         
       interaction.reply({ embeds: [resultEmbed] });
-    } else {
+    } 
+    else {
       const usageReplyEmbed = new EmbedBuilder()
         .setDescription(i18n.__mf("remove.usageReply"))
         .setColor("#FF0000");

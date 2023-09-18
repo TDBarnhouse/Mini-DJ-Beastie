@@ -5,4 +5,4 @@ export interface QueueOptions {
   interaction: CommandInteraction;
   textChannel: TextChannel;
   connection: VoiceConnection;
-}
+};

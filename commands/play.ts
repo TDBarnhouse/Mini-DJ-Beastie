@@ -53,7 +53,6 @@ export default {
     if (interaction.replied) await interaction.editReply({ embeds: [loadingEmbed] }).catch(console.error);
     else await interaction.reply({ embeds: [loadingEmbed] });
 
-    // Start the playlist if playlist URL was provided
     if (playlistPattern.test(url)) {
       if (interaction.replied) await interaction.editReply({ embeds: [loadingEmbed] }).catch(console.error);
 
@@ -64,7 +63,8 @@ export default {
 
     try {
       song = await Song.from(url, url);
-    } catch (error: any) {
+    } 
+    catch (error: any) {
       if (error.name == "NoResults") {
         const errorNoResultsEmbed = new EmbedBuilder()
           .setDescription(`${redX}` + i18n.__mf("play.errorNoResults", { url: `<${url}>` }))
@@ -87,7 +87,8 @@ export default {
           .setColor("#FF0000");
 
         return await interaction.editReply({ embeds: [commonErrorEmbed] }).catch(console.error);
-      } else {
+      } 
+      else {
         const commonErrorEmbed = new EmbedBuilder()
           .setDescription(`${redX}` + i18n.__("common.errorCommand"))
           .setColor("#FF0000");

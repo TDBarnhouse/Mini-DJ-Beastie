@@ -1,6 +1,5 @@
 import { AudioResource, createAudioResource, StreamType } from "@discordjs/voice";
 import youtube from "youtube-sr";
-import { i18n } from "../utils/i18n";
 import { videoPattern, isURL } from "../utils/patterns";
 const { stream , video_basic_info } = require('play-dl');
 
@@ -93,4 +92,4 @@ export class Song {
 
     return { embeds: [embed] };
   }
-}
+};

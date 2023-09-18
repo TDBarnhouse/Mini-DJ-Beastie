@@ -50,7 +50,8 @@ export default {
       await queueEmbed.react("⬅️");
       await queueEmbed.react("⏹");
       await queueEmbed.react("➡️");
-    } catch (error: any) {
+    } 
+    catch (error: any) {
       console.error(error);
       (interaction.channel as TextChannel).send(error.message).catch(console.error);
     }
@@ -70,7 +71,8 @@ export default {
               embeds: [embeds[currentPage]]
             });
           }
-        } else if (reaction.emoji.name === "⬅️") {
+        } 
+        else if (reaction.emoji.name === "⬅️") {
           if (currentPage !== 0) {
             --currentPage;
             queueEmbed.edit({
@@ -78,12 +80,14 @@ export default {
               embeds: [embeds[currentPage]]
             });
           }
-        } else {
+        } 
+        else {
           collector.stop();
           reaction.message.reactions.removeAll();
         }
         await reaction.users.remove(interaction.user.id);
-      } catch (error: any) {
+      } 
+      catch (error: any) {
         console.error(error);
         return (interaction.channel as TextChannel).send(error.message).catch(console.error);
       }
@@ -112,4 +116,4 @@ function generateQueueEmbed(interaction: CommandInteraction, songs: Song[]) {
   }
 
   return embeds;
-}
+};

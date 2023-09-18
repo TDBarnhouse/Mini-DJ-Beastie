@@ -55,7 +55,8 @@ export default {
       for (let i = 0; i < playlistSlotArg - 2; i++) {
         queue.songs.push(queue.songs.shift()!);
       }
-    } else {
+    } 
+    else {
       queue.songs = queue.songs.slice(playlistSlotArg - 2);
     }
 

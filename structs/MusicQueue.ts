@@ -60,30 +60,37 @@ export class MusicQueue {
         if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
           try {
             this.stop();
-          } catch (e) {
+          } 
+          catch (e) {
             console.log(e);
             this.stop();
           }
-        } else if (this.connection.rejoinAttempts < 5) {
+        } 
+        else if (this.connection.rejoinAttempts < 5) {
           await wait((this.connection.rejoinAttempts + 1) * 5_000);
           this.connection.rejoin();
-        } else {
+        } 
+        else {
           this.connection.destroy();
         }
-      } else if (
+      } 
+      else if (
         !this.readyLock &&
         (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)
       ) {
         this.readyLock = true;
         try {
           await entersState(this.connection, VoiceConnectionStatus.Ready, 20_000);
-        } catch {
+        } 
+        catch {
           if (this.connection.state.status !== VoiceConnectionStatus.Destroyed) {
             try {
               this.connection.destroy();
-            } catch {}
+            } 
+            catch {}
           }
-        } finally {
+        } 
+        finally {
           this.readyLock = false;
         }
       }
@@ -93,13 +100,15 @@ export class MusicQueue {
       if (oldState.status !== AudioPlayerStatus.Idle && newState.status === AudioPlayerStatus.Idle) {
         if (this.loop && this.songs.length) {
           this.songs.push(this.songs.shift()!);
-        } else {
+        } 
+        else {
           this.songs.shift();
           if (!this.songs.length) return this.stop();
         }
 
         if (this.songs.length || this.resource.audioPlayer) this.processQueue();
-      } else if (oldState.status === AudioPlayerStatus.Buffering && newState.status === AudioPlayerStatus.Playing) {
+      } 
+      else if (oldState.status === AudioPlayerStatus.Buffering && newState.status === AudioPlayerStatus.Playing) {
         this.sendPlayingMessage(newState);
       }
     });
@@ -109,7 +118,8 @@ export class MusicQueue {
 
       if (this.loop && this.songs.length) {
         this.songs.push(this.songs.shift()!);
-      } else {
+      } 
+      else {
         this.songs.shift();
       }
 
@@ -139,7 +149,8 @@ export class MusicQueue {
       if (this.connection.state.status !== VoiceConnectionStatus.Destroyed) {
         try {
           this.connection.destroy();
-        } catch {}
+        } 
+        catch {}
       }
       bot.queues.delete(this.interaction.guild!.id);
 
@@ -172,11 +183,13 @@ export class MusicQueue {
       this.resource = resource!;
       this.player.play(this.resource);
       this.resource.volume?.setVolumeLogarithmic(this.volume / 100);
-    } catch (error) {
+    } 
+    catch (error) {
       console.error(error);
 
       return this.processQueue();
-    } finally {
+    } 
+    finally {
       this.queueLock = false;
     }
   }
@@ -197,7 +210,8 @@ export class MusicQueue {
       await playingMessage.react("🔁");
       await playingMessage.react("🔀");
       await playingMessage.react("⏹");
-    } catch (error: any) {
+    } 
+    catch (error: any) {
       console.error(error);
       this.textChannel.send(error.message);
       return;
@@ -236,7 +250,8 @@ export class MusicQueue {
           reaction.users.remove(user).catch(console.error);
           if (this.player.state.status == AudioPlayerStatus.Playing) {
             await this.bot.slashCommandsMap.get("pause")!.execute(this.interaction);
-          } else {
+          } 
+          else {
             await this.bot.slashCommandsMap.get("resume")!.execute(this.interaction);
           }
           break;
@@ -263,7 +278,8 @@ export class MusicQueue {
                   .setColor("#FF0000")
               ],
             }).catch(console.error);
-          } else {
+          } 
+          else {
             this.resource.volume?.setVolumeLogarithmic(this.volume / 100);
             this.textChannel.send({
               embeds: [
@@ -361,4 +377,4 @@ export class MusicQueue {
       }
     });
   }
-}
+};

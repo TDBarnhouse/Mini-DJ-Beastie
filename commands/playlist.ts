@@ -56,7 +56,8 @@ export default {
 
     try {
       playlist = await Playlist.from(argSongName!.split(" ")[0], argSongName!);
-    } catch (error) {
+    } 
+    catch (error) {
       console.error(error);
 
     const errorNotFoundPlaylistEmbed = new EmbedBuilder()
@@ -71,7 +72,8 @@ export default {
 
     if (queue) {
       queue.songs.push(...playlist.videos);
-    } else {
+    } 
+    else {
       const newQueue = new MusicQueue({
         interaction,
         textChannel: interaction.channel! as TextChannel,

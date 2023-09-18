@@ -34,7 +34,8 @@ export default {
 
       if (interaction.replied) {
         interaction.followUp({ embeds: [resultEmbed] }).catch(console.error);
-      } else {
+      } 
+      else {
         interaction.reply({ embeds: [resultEmbed] }).catch(console.error);
       }
 

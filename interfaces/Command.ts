@@ -5,4 +5,4 @@ export interface Command {
   cooldown?: number;
   data: SlashCommandBuilder;
   execute(...args: any): any;
-}
+};

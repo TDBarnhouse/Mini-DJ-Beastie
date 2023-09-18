@@ -10,7 +10,7 @@ import youtube, { Video } from "youtube-sr";
 import { bot } from "..";
 import { i18n } from "../utils/i18n";
 
-const { greenCheck, redX } = require('../variables/logos.js');
+const { redX } = require('../variables/logos.js');
 
 export default {
   data: new SlashCommandBuilder()
@@ -44,7 +44,8 @@ export default {
 
     try {
       results = await youtube.search(search, { limit: 10, type: "video" });
-    } catch (error: any) {
+    } 
+    catch (error: any) {
       console.error(error);
       const errorEmbed = new EmbedBuilder()
         .setDescription(`${redX}` + i18n.__("common.errorCommand"))

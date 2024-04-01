@@ -1,4 +1,5 @@
 # Mini-DJ-Beastie
-Personal music bot for Beastie's discord server.
+My personal music bot for my discord server.
 
-Credit to @eritislami for the base of the bot.
+# Credit
+Acknowledgements to eritislami for the base of the bot code. 

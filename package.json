@@ -36,7 +36,7 @@
     "@types/node": "^20.12.5",
     "cz-conventional-changelog": "^3.0.1",
     "nodemon": "^3.1.0",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.2"
   },
   "optionalDependencies": {
     "@discordjs/opus": "^0.9.0",
